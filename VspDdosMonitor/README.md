@@ -42,5 +42,5 @@ Siehe `installer/README` über die Skripte:
   (Tag `v<Version>`); installierte Clients erkennen die neue Version automatisch beim Start bzw.
   über „Hilfe → Nach Updates suchen“.
 
-GitHub-Repository für Updates: `Christian445123/DdosMonitor` (in `installer/publish-release.ps1`
+GitHub-Repository für Updates: `Christian445123/VspDdosMonitor` (in `installer/publish-release.ps1`
 und `Services/AppSettings.cs` als Standardwert hinterlegt).

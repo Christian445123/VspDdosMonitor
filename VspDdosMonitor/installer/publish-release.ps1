@@ -13,7 +13,7 @@
 # Tag "v<Version>" (z. B. v1.1.0) eintragen und die .msi aus installer\output hochladen.
 
 param(
-    [string]$Repo = 'Christian445123/DdosMonitor',
+    [string]$Repo = 'Christian445123/VspDdosMonitor',
     [string]$Token = $env:GITHUB_TOKEN,
     [string]$Notes = ''
 )

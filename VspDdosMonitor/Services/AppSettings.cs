@@ -25,7 +25,7 @@ namespace VspDdosMonitor.Services
         // ── Programm-Updates (GitHub Releases) ───────────────────────────────
 
         /// <summary>GitHub-Repository der Anwendung im Format "Besitzer/Repository".</summary>
-        public string GitHubRepo { get; set; } = "Christian445123/DdosMonitor";
+        public string GitHubRepo { get; set; } = "Christian445123/VspDdosMonitor";
 
         /// <summary>Beim Start automatisch nach einer neuen Version suchen.</summary>
         public bool AutoCheckUpdates { get; set; } = true;
