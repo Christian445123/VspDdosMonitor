@@ -19,9 +19,11 @@ namespace VspDdosMonitor.Forms
         private readonly ServersTab _servers;
         private readonly SettingsTab _settingsTab;
         private readonly System.Windows.Forms.Timer _refreshTimer = new() { Interval = 10000 };
-        private readonly System.Windows.Forms.Timer _updateTimer = new() { Interval = 6 * 60 * 60 * 1000 };
+        private readonly System.Windows.Forms.Timer _updateTimer = new() { Interval = 30 * 60 * 1000 };
         private bool _updateDialogOpen;
         private Version? _declinedVersion;
+        private UpdateInfo? _pendingUpdate;
+        private readonly ToolStripMenuItem _updateMenu = new("Update verfügbar") { Visible = false, Alignment = ToolStripItemAlignment.Right };
 
         public MainForm(AppSettings settings, ApiClient api)
         {
@@ -45,6 +47,8 @@ namespace VspDdosMonitor.Forms
             helpMenu.DropDownItems.Add("Nach Updates suchen...", null, async (_, _) => await CheckForUpdatesAsync(manual: true));
             menu.Items.Add(fileMenu);
             menu.Items.Add(helpMenu);
+            menu.Items.Add(_updateMenu);
+            _updateMenu.Click += async (_, _) => await ShowUpdateDialogAsync(_pendingUpdate);
             MainMenuStrip = menu;
 
             AddPage("Dashboard", _dashboard);
@@ -56,6 +60,7 @@ namespace VspDdosMonitor.Forms
             Controls.Add(_tabs);
             Controls.Add(menu);
             Theme.Apply(this);
+            _updateMenu.ForeColor = Theme.Warn;
 
             _refreshTimer.Tick += async (_, _) => { if (_tabs.SelectedIndex == 0) await _dashboard.RefreshAsync(); };
             _updateTimer.Tick += async (_, _) => { if (_settings.AutoCheckUpdates) await CheckForUpdatesAsync(manual: false); };
@@ -95,7 +100,8 @@ namespace VspDdosMonitor.Forms
             }
         }
 
-        /// <summary>Sucht nach einer neuen Version und fragt nach. „Jetzt aktualisieren“ installiert sie automatisch.</summary>
+        /// <summary>Sucht nach einer neuen Version und fragt nach. „Jetzt aktualisieren“ installiert sie automatisch.
+        /// Ein wartendes Update bleibt rechts in der Menüleiste sichtbar, auch nach „Später“.</summary>
         private async Task CheckForUpdatesAsync(bool manual)
         {
             if (_updateDialogOpen) return;
@@ -104,17 +110,21 @@ namespace VspDdosMonitor.Forms
                 var info = await UpdateService.CheckAsync(_settings.GitHubRepo, _settings.GitHubToken);
                 if (info is null)
                 {
+                    _pendingUpdate = null;
+                    _updateMenu.Visible = false;
                     if (manual)
                     {
                         MessageBox.Show(this, "Es ist bereits die aktuelle Version installiert.", "Updates", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     return;
                 }
+
+                _pendingUpdate = info;
+                _updateMenu.Text = $"⬆ Update {info.Version} verfügbar";
+                _updateMenu.Visible = true;
                 if (!manual && _declinedVersion == info.Version) return;
 
-                _updateDialogOpen = true;
-                using var dialog = new UpdateForm(info, _settings);
-                if (dialog.ShowDialog(this) != DialogResult.OK) _declinedVersion = info.Version;
+                await ShowUpdateDialogAsync(info);
             }
             catch (Exception ex)
             {
@@ -123,10 +133,22 @@ namespace VspDdosMonitor.Forms
                     MessageBox.Show(this, "Update-Prüfung fehlgeschlagen:\n" + ex.Message, "Updates", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private Task ShowUpdateDialogAsync(UpdateInfo? info)
+        {
+            if (info is null || _updateDialogOpen) return Task.CompletedTask;
+            _updateDialogOpen = true;
+            try
+            {
+                using var dialog = new UpdateForm(info, _settings);
+                if (dialog.ShowDialog(this) != DialogResult.OK) _declinedVersion = info.Version;
+            }
             finally
             {
                 _updateDialogOpen = false;
             }
+            return Task.CompletedTask;
         }
     }
 }
