@@ -1,0 +1,102 @@
+using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace VspDdosMonitor.Services
+{
+    /// <summary>
+    /// Client für die REST-API des VSRP DDoS Monitor (public/api/index.php). Authentifizierung
+    /// per API-Schlüssel (Header "Authorization: Bearer ..."), passend zu ApiAuth.php auf dem Server.
+    /// </summary>
+    public sealed class ApiClient
+    {
+        private readonly AppSettings _settings;
+        private readonly HttpClient _http;
+
+        public ApiClient(AppSettings settings)
+        {
+            _settings = settings;
+            _http = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
+            _http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("VspDdosMonitor", "1.0"));
+            if (!string.IsNullOrEmpty(settings.ApiKey))
+            {
+                _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.ApiKey);
+            }
+        }
+
+        private Uri BuildUri(string path)
+        {
+            var baseUrl = _settings.BaseUrl.TrimEnd('/');
+            return new Uri(baseUrl + "/api/" + path.TrimStart('/'));
+        }
+
+        private async Task<T> GetAsync<T>(string path)
+        {
+            using var response = await _http.GetAsync(BuildUri(path)).ConfigureAwait(false);
+            var body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ApiException(ExtractMessage(body, response.StatusCode.ToString()), (int)response.StatusCode);
+            }
+            var result = JsonConvert.DeserializeObject<T>(body);
+            if (result == null) throw new ApiException("Leere Antwort vom Server.");
+            return result;
+        }
+
+        private async Task PostAsync(string path, object body)
+        {
+            var json = JsonConvert.SerializeObject(body);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var response = await _http.PostAsync(BuildUri(path), content).ConfigureAwait(false);
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ApiException(ExtractMessage(responseBody, response.StatusCode.ToString()), (int)response.StatusCode);
+            }
+        }
+
+        private static string ExtractMessage(string body, string fallback)
+        {
+            try
+            {
+                var obj = JObject.Parse(body);
+                var message = obj["message"]?.ToString();
+                if (!string.IsNullOrEmpty(message)) return message!;
+                var error = obj["error"]?.ToString();
+                if (!string.IsNullOrEmpty(error)) return error!;
+            }
+            catch (Exception)
+            {
+                // ignorieren, Fallback verwenden
+            }
+            return "Serverfehler (" + fallback + ").";
+        }
+
+        public Task<PingResult> PingAsync() => GetAsync<PingResult>("ping");
+
+        public Task<StatusResult> GetStatusAsync() => GetAsync<StatusResult>("status");
+
+        public Task<IncidentListResult> GetIncidentsAsync(int limit = 50) => GetAsync<IncidentListResult>($"incidents?limit={limit}");
+
+        public Task<IncidentDetailResult> GetIncidentAsync(int id) => GetAsync<IncidentDetailResult>($"incidents/{id}");
+
+        public Task<SamplesResult> GetSamplesAsync(int minutes = 30) => GetAsync<SamplesResult>($"samples?minutes={minutes}");
+
+        public Task SetSuspectStatusAsync(int suspectId, string status) =>
+            PostAsync($"suspects/{suspectId}/status", new { status });
+    }
+
+    public sealed class IncidentListResult
+    {
+        [JsonProperty("incidents")] public System.Collections.Generic.List<IncidentDto> Incidents { get; set; } = new();
+    }
+
+    public sealed class SamplesResult
+    {
+        [JsonProperty("samples")] public System.Collections.Generic.List<SampleDto> Samples { get; set; } = new();
+    }
+}
