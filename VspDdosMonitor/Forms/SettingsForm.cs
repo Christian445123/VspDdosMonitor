@@ -9,9 +9,7 @@ namespace VspDdosMonitor.Forms
     {
         private readonly AppSettings _settings;
 
-        private readonly TextBox _baseUrl = new() { Dock = DockStyle.Fill };
         private readonly TextBox _apiKey = new() { Dock = DockStyle.Fill, UseSystemPasswordChar = true };
-        private readonly TextBox _gitHubRepo = new() { Dock = DockStyle.Fill };
         private readonly CheckBox _autoCheck = new() { Dock = DockStyle.Fill, Text = "Beim Start automatisch nach Updates suchen", AutoSize = true };
         private readonly Label _status = new() { Dock = DockStyle.Fill, AutoSize = false, ForeColor = Color.DarkRed, TextAlign = ContentAlignment.MiddleLeft };
 
@@ -27,9 +25,7 @@ namespace VspDdosMonitor.Forms
             ClientSize = new Size(440, 340);
             Padding = new Padding(16);
 
-            _baseUrl.Text = settings.BaseUrl;
             _apiKey.Text = settings.ApiKey;
-            _gitHubRepo.Text = settings.GitHubRepo;
             _autoCheck.Checked = settings.AutoCheckUpdates;
 
             var intro = new Label
@@ -37,7 +33,7 @@ namespace VspDdosMonitor.Forms
                 Dock = DockStyle.Top,
                 AutoSize = false,
                 Height = 50,
-                Text = "Adresse und API-Schlüssel des VSRP DDoS Monitor eintragen. Den Schlüssel erstellt ein " +
+                Text = "API-Schlüssel des VSRP DDoS Monitor eintragen. Den Schlüssel erstellt ein " +
                        "Administrator im Web-Dashboard unter „API-Zugang“.",
                 ForeColor = Color.DimGray,
             };
@@ -46,24 +42,16 @@ namespace VspDdosMonitor.Forms
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
-                RowCount = 8,
+                RowCount = 4,
                 AutoSize = true,
             };
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
             table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
             table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            table.Controls.Add(FieldLabel("API-Adresse (z. B. https://ddos.viennastaterp.at)"));
-            table.Controls.Add(_baseUrl);
             table.Controls.Add(FieldLabel("API-Schlüssel"));
             table.Controls.Add(_apiKey);
-            table.Controls.Add(FieldLabel("GitHub-Repository (Besitzer/Repository) – für Updates"));
-            table.Controls.Add(_gitHubRepo);
             table.Controls.Add(_autoCheck);
             table.Controls.Add(_status);
 
@@ -106,7 +94,7 @@ namespace VspDdosMonitor.Forms
             _status.Text = "Teste Verbindung ...";
             try
             {
-                var temp = new AppSettings { BaseUrl = _baseUrl.Text.Trim(), ApiKey = _apiKey.Text.Trim() };
+                var temp = new AppSettings { ApiKey = _apiKey.Text.Trim() };
                 var api = new ApiClient(temp);
                 var result = await api.PingAsync();
                 _status.ForeColor = Color.DarkGreen;
@@ -121,19 +109,16 @@ namespace VspDdosMonitor.Forms
 
         private void SaveButton_Click(object? sender, EventArgs e)
         {
-            var baseUrl = _baseUrl.Text.Trim().TrimEnd('/');
             var apiKey = _apiKey.Text.Trim();
-            if (baseUrl.Length == 0 || apiKey.Length == 0)
+            if (apiKey.Length == 0)
             {
                 _status.ForeColor = Color.DarkRed;
-                _status.Text = "Bitte API-Adresse und API-Schlüssel eintragen.";
+                _status.Text = "Bitte den API-Schlüssel eintragen.";
                 DialogResult = DialogResult.None;
                 return;
             }
 
-            _settings.BaseUrl = baseUrl;
             _settings.ApiKey = apiKey;
-            _settings.GitHubRepo = _gitHubRepo.Text.Trim();
             _settings.AutoCheckUpdates = _autoCheck.Checked;
             _settings.Save();
         }

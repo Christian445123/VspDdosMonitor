@@ -26,13 +26,11 @@ namespace VspDdosMonitor.Services
                     if (key is null) return false;
 
                     var stamp = key.GetValue("Stamp") as string ?? "";
-                    var url = key.GetValue("ApiUrl") as string ?? "";
                     var apiKey = key.GetValue("ApiKey") as string ?? "";
 
                     if (stamp.Length == 0 || stamp == s.SetupStamp) return false;
                     if (apiKey.Length == 0) return false;
 
-                    if (!string.IsNullOrWhiteSpace(url)) s.BaseUrl = url.Trim().TrimEnd('/');
                     s.ApiKey = apiKey.Trim();
                     s.SetupStamp = stamp;
                     s.Save();

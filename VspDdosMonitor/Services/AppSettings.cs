@@ -12,7 +12,12 @@ namespace VspDdosMonitor.Services
     /// </summary>
     public sealed class AppSettings
     {
-        public string BaseUrl { get; set; } = "";
+        public const string DefaultBaseUrl = "https://ddos.viennastaterp.at";
+
+        /// <summary>Adresse der Web-Anwendung (fest hinterlegt, nicht vom Benutzer änderbar).</summary>
+        [JsonIgnore]
+        public string BaseUrl => DefaultBaseUrl;
+
         public string ApiKeyProtected { get; set; } = "";
 
         [JsonIgnore]
@@ -44,7 +49,7 @@ namespace VspDdosMonitor.Services
         }
 
         [JsonIgnore]
-        public bool IsConfigured => !string.IsNullOrWhiteSpace(BaseUrl) && !string.IsNullOrEmpty(ApiKey);
+        public bool IsConfigured => !string.IsNullOrEmpty(ApiKey);
 
         /// <summary>Nur für Tests: anderer Speicherort statt %APPDATA%.</summary>
         public static string? PathOverride { get; set; }
