@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -56,6 +57,19 @@ namespace VspDdosMonitor.Services
             return result;
         }
 
+        private async Task<T> PostAsync<T>(string path, object body)
+        {
+            var json = JsonConvert.SerializeObject(body);
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var response = await _http.PostAsync(BuildUri(path), content).ConfigureAwait(false);
+            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ApiException(ExtractMessage(responseBody, response.StatusCode.ToString()), (int)response.StatusCode);
+            }
+            return JsonConvert.DeserializeObject<T>(responseBody) ?? throw new ApiException("Leere Antwort vom Server.");
+        }
+
         private async Task PostAsync(string path, object body)
         {
             var json = JsonConvert.SerializeObject(body);
@@ -94,6 +108,19 @@ namespace VspDdosMonitor.Services
         public Task<IncidentDetailResult> GetIncidentAsync(int id) => GetAsync<IncidentDetailResult>($"incidents/{id}");
 
         public Task<SamplesResult> GetSamplesAsync(int minutes = 30) => GetAsync<SamplesResult>($"samples?minutes={minutes}");
+
+        public Task<ServersResult> GetServersAsync() => GetAsync<ServersResult>("servers");
+
+        public Task<CreateServerResult> CreateServerAsync(string name) => PostAsync<CreateServerResult>("servers", new { name });
+
+        public Task<MessageResult> RevokeServerAsync(int id) => PostAsync<MessageResult>($"servers/{id}/revoke", new { });
+
+        public Task<SettingsResult> GetSettingsAsync() => GetAsync<SettingsResult>("settings");
+
+        public Task<MessageResult> SaveThresholdsAsync(Dictionary<string, string> thresholds) =>
+            PostAsync<MessageResult>("settings", new { thresholds });
+
+        public Task<MessageResult> TestEmailAsync() => PostAsync<MessageResult>("settings/test-email", new { });
 
         public Task SetSuspectStatusAsync(int suspectId, string status) =>
             PostAsync($"suspects/{suspectId}/status", new { status });

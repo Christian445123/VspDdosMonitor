@@ -60,4 +60,50 @@ namespace VspDdosMonitor.Services
         [JsonProperty("key_label")] public string KeyLabel { get; set; } = "";
         [JsonProperty("server_time")] public string ServerTime { get; set; } = "";
     }
+
+    public sealed class ServerDto
+    {
+        [JsonProperty("id")] public int Id { get; set; }
+        [JsonProperty("name")] public string Name { get; set; } = "";
+        [JsonProperty("hostname")] public string? Hostname { get; set; }
+        [JsonProperty("token_hint")] public string TokenHint { get; set; } = "";
+        [JsonProperty("last_seen_at")] public string? LastSeenAt { get; set; }
+        [JsonProperty("last_ip")] public string? LastIp { get; set; }
+        [JsonProperty("revoked_at")] public string? RevokedAt { get; set; }
+        [JsonProperty("active_incidents")] public int ActiveIncidents { get; set; }
+        [JsonProperty("last_mbit")] public double? LastMbit { get; set; }
+        [JsonProperty("online")] public bool Online { get; set; }
+    }
+
+    public sealed class ServersResult
+    {
+        [JsonProperty("servers")] public List<ServerDto> Servers { get; set; } = new List<ServerDto>();
+    }
+
+    public sealed class CreateServerResult
+    {
+        [JsonProperty("name")] public string Name { get; set; } = "";
+        [JsonProperty("key")] public string Key { get; set; } = "";
+        [JsonProperty("install_command")] public string InstallCommand { get; set; } = "";
+    }
+
+    public sealed class NotificationInfo
+    {
+        [JsonProperty("smtp_host")] public string SmtpHost { get; set; } = "";
+        [JsonProperty("from_email")] public string FromEmail { get; set; } = "";
+        [JsonProperty("alert_to")] public string AlertTo { get; set; } = "";
+        [JsonProperty("discord_set")] public bool DiscordSet { get; set; }
+    }
+
+    public sealed class SettingsResult
+    {
+        [JsonProperty("thresholds")] public Dictionary<string, string> Thresholds { get; set; } = new Dictionary<string, string>();
+        [JsonProperty("notifications")] public NotificationInfo Notifications { get; set; } = new NotificationInfo();
+    }
+
+    public sealed class MessageResult
+    {
+        [JsonProperty("ok")] public bool Ok { get; set; }
+        [JsonProperty("message")] public string Message { get; set; } = "";
+    }
 }
