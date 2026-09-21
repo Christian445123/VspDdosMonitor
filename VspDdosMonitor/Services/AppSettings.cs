@@ -19,6 +19,14 @@ namespace VspDdosMonitor.Services
         public string BaseUrl => DefaultBaseUrl;
 
         public string ApiKeyProtected { get; set; } = "";
+        public string LicenseKeyProtected { get; set; } = "";
+
+        [JsonIgnore]
+        public string LicenseKey
+        {
+            get => Unprotect(LicenseKeyProtected);
+            set => LicenseKeyProtected = Protect(value);
+        }
 
         [JsonIgnore]
         public string ApiKey
@@ -49,7 +57,7 @@ namespace VspDdosMonitor.Services
         }
 
         [JsonIgnore]
-        public bool IsConfigured => !string.IsNullOrEmpty(ApiKey);
+        public bool IsConfigured => !string.IsNullOrEmpty(ApiKey) && !string.IsNullOrEmpty(LicenseKey);
 
         /// <summary>Nur für Tests: anderer Speicherort statt %APPDATA%.</summary>
         public static string? PathOverride { get; set; }

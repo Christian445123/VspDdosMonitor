@@ -27,11 +27,13 @@ namespace VspDdosMonitor.Services
 
                     var stamp = key.GetValue("Stamp") as string ?? "";
                     var apiKey = key.GetValue("ApiKey") as string ?? "";
+                    var license = key.GetValue("LicenseKey") as string ?? "";
 
                     if (stamp.Length == 0 || stamp == s.SetupStamp) return false;
-                    if (apiKey.Length == 0) return false;
+                    if (apiKey.Length == 0 && license.Length == 0) return false;
 
-                    s.ApiKey = apiKey.Trim();
+                    if (apiKey.Length > 0) s.ApiKey = apiKey.Trim();
+                    if (license.Length > 0) s.LicenseKey = license.Trim().ToUpperInvariant();
                     s.SetupStamp = stamp;
                     s.Save();
 
@@ -39,6 +41,7 @@ namespace VspDdosMonitor.Services
                     {
                         using var writable = baseKey.OpenSubKey(keyPath, writable: true);
                         writable?.DeleteValue("ApiKey", throwOnMissingValue: false);
+                        writable?.DeleteValue("LicenseKey", throwOnMissingValue: false);
                     }
                     catch (Exception)
                     {

@@ -26,6 +26,10 @@ namespace VspDdosMonitor.Services
             {
                 _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.ApiKey);
             }
+            if (!string.IsNullOrEmpty(settings.LicenseKey))
+            {
+                _http.DefaultRequestHeaders.Add("X-License-Key", settings.LicenseKey);
+            }
         }
 
         private Uri BuildUri(string path)

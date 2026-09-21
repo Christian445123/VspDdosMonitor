@@ -10,6 +10,7 @@ namespace VspDdosMonitor.Forms
         private readonly AppSettings _settings;
 
         private readonly TextBox _apiKey = new() { Dock = DockStyle.Fill, UseSystemPasswordChar = true };
+        private readonly TextBox _licenseKey = new() { Dock = DockStyle.Fill };
         private readonly CheckBox _autoCheck = new() { Dock = DockStyle.Fill, Text = "Beim Start automatisch nach Updates suchen", AutoSize = true };
         private readonly Label _status = new() { Dock = DockStyle.Fill, AutoSize = false, ForeColor = Color.DarkRed, TextAlign = ContentAlignment.MiddleLeft };
 
@@ -22,10 +23,11 @@ namespace VspDdosMonitor.Forms
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            ClientSize = new Size(440, 340);
+            ClientSize = new Size(440, 400);
             Padding = new Padding(16);
 
             _apiKey.Text = settings.ApiKey;
+            _licenseKey.Text = settings.LicenseKey;
             _autoCheck.Checked = settings.AutoCheckUpdates;
 
             var intro = new Label
@@ -33,8 +35,8 @@ namespace VspDdosMonitor.Forms
                 Dock = DockStyle.Top,
                 AutoSize = false,
                 Height = 50,
-                Text = "API-Schlüssel des VSRP DDoS Monitor eintragen. Den Schlüssel erstellt ein " +
-                       "Administrator im Web-Dashboard unter „API-Zugang“.",
+                Text = "Lizenz- und API-Schlüssel des VSRP DDoS Monitor eintragen. Beide erstellt ein " +
+                       "Administrator im Web-Dashboard unter „Lizenzen“ bzw. „API-Zugang“.",
                 ForeColor = Color.DimGray,
             };
 
@@ -42,14 +44,18 @@ namespace VspDdosMonitor.Forms
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
-                RowCount = 4,
+                RowCount = 6,
                 AutoSize = true,
             };
+            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
             table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
             table.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
             table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
+            table.Controls.Add(FieldLabel("Lizenzschlüssel (VDOS-XXXX-XXXX-XXXX-XXXX)"));
+            table.Controls.Add(_licenseKey);
             table.Controls.Add(FieldLabel("API-Schlüssel"));
             table.Controls.Add(_apiKey);
             table.Controls.Add(_autoCheck);
@@ -94,7 +100,7 @@ namespace VspDdosMonitor.Forms
             _status.Text = "Teste Verbindung ...";
             try
             {
-                var temp = new AppSettings { ApiKey = _apiKey.Text.Trim() };
+                var temp = new AppSettings { ApiKey = _apiKey.Text.Trim(), LicenseKey = _licenseKey.Text.Trim() };
                 var api = new ApiClient(temp);
                 var result = await api.PingAsync();
                 _status.ForeColor = Color.DarkGreen;
@@ -110,15 +116,17 @@ namespace VspDdosMonitor.Forms
         private void SaveButton_Click(object? sender, EventArgs e)
         {
             var apiKey = _apiKey.Text.Trim();
-            if (apiKey.Length == 0)
+            var licenseKey = _licenseKey.Text.Trim();
+            if (apiKey.Length == 0 || licenseKey.Length == 0)
             {
                 _status.ForeColor = Color.DarkRed;
-                _status.Text = "Bitte den API-Schlüssel eintragen.";
+                _status.Text = "Bitte Lizenzschlüssel und API-Schlüssel eintragen.";
                 DialogResult = DialogResult.None;
                 return;
             }
 
             _settings.ApiKey = apiKey;
+            _settings.LicenseKey = licenseKey;
             _settings.AutoCheckUpdates = _autoCheck.Checked;
             _settings.Save();
         }
