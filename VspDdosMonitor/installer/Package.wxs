@@ -19,6 +19,8 @@
     <MajorUpgrade DowngradeErrorMessage="Eine neuere Version des VSRP DDoS Monitor ist bereits installiert." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
+    <Icon Id="AppIcon.ico" SourceFile="..\app.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
     <Property Id="ARPCOMMENTS" Value="Admin-Client für den VSRP DDoS Monitor (Erkennung und Vorfallsübersicht)" />
 
     <!-- Fenster: Willkommen -> Zielordner -> Zugangsdaten -> Installieren -> Fertig -->
@@ -105,13 +107,13 @@
     <ComponentGroup Id="Shortcuts">
       <Component Id="StartMenuShortcutComponent" Directory="AppStartMenuFolder" Guid="*">
         <Shortcut Id="StartMenuShortcut" Name="VSRP DDoS Monitor" Description="VSRP DDoS Monitor starten"
-                  Target="[INSTALLFOLDER]VspDdosMonitor.exe" WorkingDirectory="INSTALLFOLDER" />
+                  Target="[INSTALLFOLDER]VspDdosMonitor.exe" WorkingDirectory="INSTALLFOLDER" Icon="AppIcon.ico" />
         <RemoveFolder Id="RemoveStartMenuFolder" Directory="AppStartMenuFolder" On="uninstall" />
         <RegistryValue Root="HKCU" Key="Software\ViennaStateRP\VspDdosMonitor" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
       </Component>
       <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="*">
         <Shortcut Id="DesktopShortcut" Name="VSRP DDoS Monitor" Description="VSRP DDoS Monitor starten"
-                  Target="[INSTALLFOLDER]VspDdosMonitor.exe" WorkingDirectory="INSTALLFOLDER" />
+                  Target="[INSTALLFOLDER]VspDdosMonitor.exe" WorkingDirectory="INSTALLFOLDER" Icon="AppIcon.ico" />
         <RegistryValue Root="HKCU" Key="Software\ViennaStateRP\VspDdosMonitor" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
       </Component>
     </ComponentGroup>

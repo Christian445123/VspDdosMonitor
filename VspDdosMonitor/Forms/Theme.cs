@@ -47,6 +47,7 @@ namespace VspDdosMonitor.Forms
                 form.BackColor = Bg;
                 form.ForeColor = Text;
                 form.Font = BaseFont;
+                try { form.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch (Exception) { }
                 form.HandleCreated += (_, _) =>
                 {
                     var on = 1;

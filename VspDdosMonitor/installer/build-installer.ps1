@@ -53,6 +53,7 @@ $publishDir = Join-Path $stageInstaller 'publish'
 New-Item -ItemType Directory -Force $publishDir | Out-Null
 Copy-Item (Join-Path $installerDir 'Package.wxs') $stageInstaller
 Copy-Item (Join-Path $installerDir 'dotnet-tools.json') $stageInstaller
+Copy-Item (Join-Path $projectDir 'app.ico') $stage
 
 # 1) Veroeffentlichen (framework-dependent: Zielrechner braucht das .NET Framework 4.8, das auf jedem
 #    aktuellen Windows bereits vorinstalliert ist)
