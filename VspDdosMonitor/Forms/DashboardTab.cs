@@ -68,9 +68,9 @@ namespace VspDdosMonitor.Forms
             AddCard(cards, _cardConn, "Verbindungen");
             AddCard(cards, _cardSyn, "SYN-RECV");
 
-            ConfigureChart(_rateChart, "MBit/s eingehend", "MBit/s ausgehend", Color.SteelBlue, Color.SeaGreen);
-            ConfigureChart(_packetChart, "Pakete/s eingehend", "Pakete/s ausgehend", Color.Firebrick, Color.DarkOrange);
-            ConfigureChart(_connChart, "Verbindungen", "SYN-RECV", Color.MediumPurple, Color.Chocolate);
+            ConfigureChart(_rateChart, "MBit/s eingehend", "MBit/s ausgehend", Theme.Accent, Theme.Success);
+            ConfigureChart(_packetChart, "Pakete/s eingehend", "Pakete/s ausgehend", Theme.Danger, Color.DarkOrange);
+            ConfigureChart(_connChart, "Verbindungen", "SYN-RECV", Color.FromArgb(0xB0, 0x8B, 0xFF), Color.Chocolate);
 
             var charts = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1 };
             for (var i = 0; i < 3; i++) charts.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3f));
@@ -187,14 +187,14 @@ namespace VspDdosMonitor.Forms
                 if (statusTask.Result.ActiveIncident is { } inc)
                 {
                     _banner.Text = $"⚠️ Aktiver Vorfall #{inc.Id} auf {name} seit {inc.StartedAt} — {inc.TriggerReason}";
-                    _banner.BackColor = Color.FromArgb(255, 226, 224);
-                    _banner.ForeColor = Color.FromArgb(170, 30, 20);
+                    _banner.BackColor = Theme.DangerBack;
+                    _banner.ForeColor = Theme.DangerText;
                 }
                 else
                 {
                     _banner.Text = s is null ? $"Noch keine Messwerte von {name}." : $"✅ {name}: kein aktiver Vorfall — Netzwerk unauffällig. (letzte Messung {s.Ts})";
-                    _banner.BackColor = s is null ? Color.FromArgb(255, 244, 214) : Color.FromArgb(228, 248, 232);
-                    _banner.ForeColor = s is null ? Color.FromArgb(150, 100, 0) : Color.FromArgb(20, 110, 45);
+                    _banner.BackColor = s is null ? Theme.WarnBack : Theme.SuccessBack;
+                    _banner.ForeColor = s is null ? Theme.WarnText : Theme.SuccessText;
                 }
 
                 var samples = samplesTask.Result.Samples;
@@ -212,7 +212,7 @@ namespace VspDdosMonitor.Forms
                     _servers.Items.Add(new ListViewItem(new[] { sv.Name, sv.LastSeenAt ?? "noch nie", sv.LastMbit is { } m ? m.ToString("N1") : "–", status })
                     {
                         Tag = sv.Id,
-                        ForeColor = sv.ActiveIncidents > 0 ? Color.Firebrick : sv.Online ? Color.SeaGreen : Color.DarkGoldenrod,
+                        ForeColor = sv.ActiveIncidents > 0 ? Theme.Danger : sv.Online ? Theme.Success : Theme.Warn,
                     });
                 }
                 _servers.EndUpdate();
@@ -228,8 +228,8 @@ namespace VspDdosMonitor.Forms
             catch (Exception ex)
             {
                 _banner.Text = "Verbindungsfehler: " + ex.Message;
-                _banner.BackColor = Color.FromArgb(255, 244, 214);
-                _banner.ForeColor = Color.FromArgb(150, 100, 0);
+                _banner.BackColor = Theme.WarnBack;
+                _banner.ForeColor = Theme.WarnText;
             }
         }
 

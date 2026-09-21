@@ -28,6 +28,7 @@ namespace VspDdosMonitor.Forms
             top.Controls.Add(new Label { Text = "Neuer Server:", AutoSize = true, Margin = new Padding(0, 8, 6, 0) });
             top.Controls.Add(_name);
             var create = new Button { Text = "Server anlegen", Width = 130 };
+            Theme.Primary(create);
             create.Click += async (_, _) => await CreateAsync();
             var revoke = new Button { Text = "Ausgewählten widerrufen", Width = 170 };
             revoke.Click += async (_, _) => await RevokeAsync();
@@ -60,7 +61,7 @@ namespace VspDdosMonitor.Forms
                     _list.Items.Add(new ListViewItem(new[] { s.Name, host, "vsrv_…" + s.TokenHint, s.LastSeenAt ?? "noch nie", status })
                     {
                         Tag = s.Id,
-                        ForeColor = s.RevokedAt != null ? Color.Gray : s.ActiveIncidents > 0 ? Color.Firebrick : s.Online ? Color.SeaGreen : Color.DarkGoldenrod,
+                        ForeColor = s.RevokedAt != null ? Theme.Muted : s.ActiveIncidents > 0 ? Theme.Danger : s.Online ? Theme.Success : Theme.Warn,
                     });
                 }
                 _list.EndUpdate();
@@ -133,6 +134,8 @@ namespace VspDdosMonitor.Forms
             var close = new Button { Left = 526, Top = 140, Width = 100, Height = 30, Text = "Schließen", DialogResult = DialogResult.OK };
             Controls.AddRange(new Control[] { info, box, copy, close });
             AcceptButton = close;
+            Theme.Primary(close);
+            Theme.Apply(this);
         }
     }
 }

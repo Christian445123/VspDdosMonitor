@@ -12,7 +12,7 @@ namespace VspDdosMonitor.Forms
         private readonly TextBox _apiKey = new() { Dock = DockStyle.Fill, UseSystemPasswordChar = true };
         private readonly TextBox _licenseKey = new() { Dock = DockStyle.Fill };
         private readonly CheckBox _autoCheck = new() { Dock = DockStyle.Fill, Text = "Beim Start automatisch nach Updates suchen", AutoSize = true };
-        private readonly Label _status = new() { Dock = DockStyle.Fill, AutoSize = false, ForeColor = Color.DarkRed, TextAlign = ContentAlignment.MiddleLeft };
+        private readonly Label _status = new() { Dock = DockStyle.Fill, AutoSize = false, ForeColor = Theme.Danger, TextAlign = ContentAlignment.MiddleLeft };
 
         public SettingsForm(AppSettings settings, bool firstRun)
         {
@@ -69,6 +69,7 @@ namespace VspDdosMonitor.Forms
                 AutoSize = false,
             };
             var saveButton = new Button { Text = "Speichern", DialogResult = DialogResult.OK, Width = 100 };
+            Theme.Primary(saveButton);
             saveButton.Click += SaveButton_Click;
             var cancelButton = new Button { Text = "Abbrechen", DialogResult = DialogResult.Cancel, Width = 100, Visible = !firstRun };
             var testButton = new Button { Text = "Verbindung testen", Width = 140 };
@@ -83,6 +84,7 @@ namespace VspDdosMonitor.Forms
             Controls.Add(table);
             Controls.Add(intro);
             Controls.Add(buttonPanel);
+            Theme.Apply(this);
         }
 
         private static Label FieldLabel(string text) => new()
@@ -96,19 +98,19 @@ namespace VspDdosMonitor.Forms
 
         private async void TestButton_Click(object? sender, EventArgs e)
         {
-            _status.ForeColor = Color.DarkRed;
+            _status.ForeColor = Theme.Danger;
             _status.Text = "Teste Verbindung ...";
             try
             {
                 var temp = new AppSettings { ApiKey = _apiKey.Text.Trim(), LicenseKey = _licenseKey.Text.Trim() };
                 var api = new ApiClient(temp);
                 var result = await api.PingAsync();
-                _status.ForeColor = Color.DarkGreen;
+                _status.ForeColor = Theme.Success;
                 _status.Text = "Verbindung erfolgreich (Schlüssel: " + result.KeyLabel + ").";
             }
             catch (Exception ex)
             {
-                _status.ForeColor = Color.DarkRed;
+                _status.ForeColor = Theme.Danger;
                 _status.Text = "Fehler: " + ex.Message;
             }
         }
@@ -119,7 +121,7 @@ namespace VspDdosMonitor.Forms
             var licenseKey = _licenseKey.Text.Trim();
             if (apiKey.Length == 0 || licenseKey.Length == 0)
             {
-                _status.ForeColor = Color.DarkRed;
+                _status.ForeColor = Theme.Danger;
                 _status.Text = "Bitte Lizenzschlüssel und API-Schlüssel eintragen.";
                 DialogResult = DialogResult.None;
                 return;

@@ -10,14 +10,9 @@ namespace VspDdosMonitor.Forms
     public sealed class MainForm : Form
     {
         private readonly AppSettings _settings;
-        private readonly TabControl _tabs = new()
+        private readonly DarkTabControl _tabs = new()
         {
             Dock = DockStyle.Fill,
-            Alignment = TabAlignment.Right,
-            SizeMode = TabSizeMode.Fixed,
-            ItemSize = new Size(44, 150),
-            DrawMode = TabDrawMode.OwnerDrawFixed,
-            Multiline = true,
         };
         private readonly DashboardTab _dashboard;
         private readonly IncidentsTab _incidents;
@@ -56,11 +51,11 @@ namespace VspDdosMonitor.Forms
             AddPage("Vorfälle", _incidents);
             AddPage("Server", _servers);
             AddPage("Einstellungen", _settingsTab);
-            _tabs.DrawItem += DrawTab;
             _tabs.SelectedIndexChanged += async (_, _) => await RefreshSelectedAsync();
 
             Controls.Add(_tabs);
             Controls.Add(menu);
+            Theme.Apply(this);
 
             _refreshTimer.Tick += async (_, _) => { if (_tabs.SelectedIndex == 0) await _dashboard.RefreshAsync(); };
             _updateTimer.Tick += async (_, _) => { if (_settings.AutoCheckUpdates) await CheckForUpdatesAsync(manual: false); };
@@ -78,18 +73,6 @@ namespace VspDdosMonitor.Forms
             var page = new TabPage(title) { Padding = new Padding(6) };
             page.Controls.Add(content);
             _tabs.TabPages.Add(page);
-        }
-
-        private void DrawTab(object? sender, DrawItemEventArgs e)
-        {
-            var selected = e.Index == _tabs.SelectedIndex;
-            using (var back = new SolidBrush(selected ? Color.FromArgb(45, 108, 223) : Color.FromArgb(238, 240, 245)))
-            {
-                e.Graphics.FillRectangle(back, e.Bounds);
-            }
-            TextRenderer.DrawText(e.Graphics, _tabs.TabPages[e.Index].Text, new Font(Font.FontFamily, 10f, selected ? FontStyle.Bold : FontStyle.Regular),
-                e.Bounds, selected ? Color.White : Color.FromArgb(50, 55, 70),
-                TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter);
         }
 
         private async Task RefreshSelectedAsync()

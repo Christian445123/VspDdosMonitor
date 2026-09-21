@@ -49,6 +49,7 @@ namespace VspDdosMonitor.Forms
 
             var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 44, Padding = new Padding(6) };
             var save = new Button { Text = "Speichern", Width = 110 };
+            Theme.Primary(save);
             save.Click += async (_, _) => await SaveAsync();
             var reload = new Button { Text = "Neu laden", Width = 100 };
             reload.Click += async (_, _) => await RefreshAsync();
@@ -86,7 +87,7 @@ namespace VspDdosMonitor.Forms
             }
             catch (Exception ex)
             {
-                _status.ForeColor = Color.Firebrick;
+                _status.ForeColor = Theme.Danger;
                 _status.Text = "Fehler: " + ex.Message;
             }
         }
@@ -98,12 +99,12 @@ namespace VspDdosMonitor.Forms
             try
             {
                 await _api.SaveThresholdsAsync(values);
-                _status.ForeColor = Color.SeaGreen;
+                _status.ForeColor = Theme.Success;
                 _status.Text = "Gespeichert. Der Collector übernimmt die Werte beim nächsten Messzyklus.";
             }
             catch (Exception ex)
             {
-                _status.ForeColor = Color.Firebrick;
+                _status.ForeColor = Theme.Danger;
                 _status.Text = "Fehler: " + ex.Message;
             }
         }

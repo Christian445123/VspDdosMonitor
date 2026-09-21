@@ -43,6 +43,9 @@ namespace VspDdosMonitor.Forms
             _update.Click += async (_, _) => await InstallAsync();
             Controls.AddRange(new Control[] { title, notes, _status, _progress, _update, _later });
             AcceptButton = _update;
+            Theme.Primary(_update);
+            Theme.Apply(this);
+            Shown += (_, _) => { notes.SelectionStart = 0; notes.SelectionLength = 0; };
             CancelButton = _later;
         }
 
