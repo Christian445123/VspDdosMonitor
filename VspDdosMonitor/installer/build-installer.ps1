@@ -8,14 +8,24 @@
 #   2. MSI mit WiX bauen (lokales dotnet-Tool, siehe dotnet-tools.json)
 # Ergebnis: installer\output\VspDdosMonitor-<Version>-x64.msi
 
+param(
+    # Optional: Version explizit vorgeben (z. B. aus dem Git-Tag in GitHub Actions). Ohne Angabe gilt <Version> aus der .csproj.
+    [string]$Version = ''
+)
+
 $ErrorActionPreference = 'Stop'
 $installerDir = $PSScriptRoot
 $projectDir = Split-Path $installerDir -Parent
 $csproj = Join-Path $projectDir 'VspDdosMonitor.csproj'
 
-# Version aus der .csproj (z. B. 1.1.0)
-[xml]$xml = Get-Content $csproj -Encoding UTF8
-$version = ($xml.Project.PropertyGroup | ForEach-Object { $_.Version } | Where-Object { $_ } | Select-Object -First 1)
+# Version aus der .csproj (z. B. 1.1.0), sofern nicht per -Version uebergeben
+if ($Version) {
+    $version = $Version.TrimStart('v')
+}
+else {
+    [xml]$xml = Get-Content $csproj -Encoding UTF8
+    $version = ($xml.Project.PropertyGroup | ForEach-Object { $_.Version } | Where-Object { $_ } | Select-Object -First 1)
+}
 if (-not $version) { throw 'Keine <Version> in der .csproj gefunden.' }
 # MSI-Versionen brauchen genau Major.Minor.Build
 $parts = $version.Split('.')
@@ -47,7 +57,7 @@ Copy-Item (Join-Path $installerDir 'dotnet-tools.json') $stageInstaller
 # 1) Veroeffentlichen (framework-dependent: Zielrechner braucht das .NET Framework 4.8, das auf jedem
 #    aktuellen Windows bereits vorinstalliert ist)
 dotnet publish $csproj -c Release -r win-x64 --self-contained false `
-    -p:DebugType=none -p:DebugSymbols=false -p:SatelliteResourceLanguages=en `
+    -p:Version=$msiVersion -p:DebugType=none -p:DebugSymbols=false -p:SatelliteResourceLanguages=en `
     -o $publishDir -nologo
 if ($LASTEXITCODE -ne 0) { throw 'dotnet publish fehlgeschlagen.' }
 

@@ -1,0 +1,32 @@
+name: Release
+
+# Bei jedem Push eines Versions-Tags (z. B. v1.0.1) wird der MSI-Installer gebaut und als
+# GitHub-Release veroeffentlicht. Installierte Clients finden ihn ueber den Update-Check.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: MSI-Installer bauen
+        shell: pwsh
+        working-directory: VspDdosMonitor/installer
+        run: .\build-installer.ps1 -Version "${{ github.ref_name }}"
+
+      - name: Release veroeffentlichen
+        uses: softprops/action-gh-release@v2
+        with:
+          files: VspDdosMonitor/installer/output/*.msi
+          generate_release_notes: true

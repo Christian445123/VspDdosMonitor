@@ -44,3 +44,16 @@ Siehe `installer/README` über die Skripte:
 
 GitHub-Repository für Updates: `Christian445123/VspDdosMonitor` (in `installer/publish-release.ps1`
 und `Services/AppSettings.cs` als Standardwert hinterlegt).
+
+## Automatisches Release (GitHub Actions)
+
+`.github/workflows/release.yml` baut bei jedem Push eines Versions-Tags automatisch den
+MSI-Installer und veröffentlicht ihn als GitHub-Release – kein lokaler Schritt nötig:
+
+```
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+Die Version des Tags (ohne `v`) wird in Programm und Installer übernommen; installierte Clients
+bieten das Update beim nächsten Start bzw. über „Hilfe → Nach Updates suchen" an.
