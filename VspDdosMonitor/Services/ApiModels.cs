@@ -25,6 +25,7 @@ namespace VspDdosMonitor.Services
         [JsonProperty("peak_total_conn")] public long PeakTotalConn { get; set; }
         [JsonProperty("peak_syn_recv")] public long PeakSynRecv { get; set; }
         [JsonProperty("trigger_reason")] public string TriggerReason { get; set; } = "";
+        [JsonProperty("server_name")] public string ServerName { get; set; } = "";
         [JsonProperty("notified_email")] public bool NotifiedEmail { get; set; }
         [JsonProperty("notified_discord")] public bool NotifiedDiscord { get; set; }
     }

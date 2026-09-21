@@ -54,6 +54,7 @@ namespace VspDdosMonitor.Forms
             BuildCards();
 
             _incidentsList.Columns.Add("#", 45);
+            _incidentsList.Columns.Add("Server", 110);
             _incidentsList.Columns.Add("Beginn", 140);
             _incidentsList.Columns.Add("Ende", 140);
             _incidentsList.Columns.Add("Status", 80);
@@ -169,7 +170,7 @@ namespace VspDdosMonitor.Forms
 
                 if (status.ActiveIncident is { } inc)
                 {
-                    _statusBanner.Text = $"⚠️ Aktiver Vorfall #{inc.Id} seit {inc.StartedAt} — {inc.TriggerReason}";
+                    _statusBanner.Text = $"⚠️ Aktiver Vorfall #{inc.Id} auf {inc.ServerName} seit {inc.StartedAt} — {inc.TriggerReason}";
                     _statusBanner.BackColor = Color.FromArgb(255, 235, 235);
                     _statusBanner.ForeColor = Color.FromArgb(180, 30, 20);
                 }
@@ -200,6 +201,7 @@ namespace VspDdosMonitor.Forms
                     var item = new ListViewItem(new[]
                     {
                         inc.Id.ToString(),
+                        inc.ServerName,
                         inc.StartedAt,
                         inc.ResolvedAt ?? "–",
                         inc.Status,
