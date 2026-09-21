@@ -101,13 +101,14 @@ namespace VspDdosMonitor.Services
 
         public Task<PingResult> PingAsync() => GetAsync<PingResult>("ping");
 
-        public Task<StatusResult> GetStatusAsync() => GetAsync<StatusResult>("status");
+        public Task<StatusResult> GetStatusAsync(int serverId = 0) => GetAsync<StatusResult>($"status?server_id={serverId}");
 
-        public Task<IncidentListResult> GetIncidentsAsync(int limit = 50) => GetAsync<IncidentListResult>($"incidents?limit={limit}");
+        public Task<IncidentListResult> GetIncidentsAsync(int limit = 50, int? serverId = null) =>
+            GetAsync<IncidentListResult>($"incidents?limit={limit}" + (serverId.HasValue ? $"&server_id={serverId.Value}" : ""));
 
         public Task<IncidentDetailResult> GetIncidentAsync(int id) => GetAsync<IncidentDetailResult>($"incidents/{id}");
 
-        public Task<SamplesResult> GetSamplesAsync(int minutes = 30) => GetAsync<SamplesResult>($"samples?minutes={minutes}");
+        public Task<SamplesResult> GetSamplesAsync(int minutes = 30, int serverId = 0) => GetAsync<SamplesResult>($"samples?minutes={minutes}&server_id={serverId}");
 
         public Task<ServersResult> GetServersAsync() => GetAsync<ServersResult>("servers");
 
