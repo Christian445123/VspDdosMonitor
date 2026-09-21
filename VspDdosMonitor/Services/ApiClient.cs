@@ -31,7 +31,12 @@ namespace VspDdosMonitor.Services
         private Uri BuildUri(string path)
         {
             var baseUrl = _settings.BaseUrl.TrimEnd('/');
-            return new Uri(baseUrl + "/api/" + path.TrimStart('/'));
+            // Ohne URL-Umschreibung (Nginx liest keine .htaccess): Route als Query-Parameter an index.php übergeben
+            var trimmed = path.TrimStart('/');
+            var q = trimmed.IndexOf('?');
+            var route = q >= 0 ? trimmed.Substring(0, q) : trimmed;
+            var extra = q >= 0 ? "&" + trimmed.Substring(q + 1) : "";
+            return new Uri(baseUrl + "/api/index.php?r=" + route + extra);
         }
 
         private async Task<T> GetAsync<T>(string path)
